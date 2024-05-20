@@ -13,174 +13,55 @@
 </head>
 <body>
 
-<div class="container">
-    <h1 class="mt-4" id="header-text">Pokemon Gallery</h1>
-    <div id="pokemon-container" class="row"></div>
-    <nav aria-label="Page navigation example">
-        <ul class="pagination justify-content-center">
-            <li class="page-item">
-                <button id="prev" class="page-link">Previous</button>
-            </li>
-            <li id="page-buttons" class="pagination"></li>
-            <li class="page-item">
-                <button id="next" class="page-link">Next</button>
-            </li>
-        </ul>
-    </nav>
-</div>
-
-<!-- Modal -->
-<div class="modal fade" id="pokemonModal" tabindex="-1" aria-labelledby="pokemonModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="pokemonModalLabel">Pokemon Details</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="container">
+        <h1 class="mt-4" id="header-text">Pokemon Gallery</h1>
+    
+        <div class="row mb-3">
+            <div class="col-md-12">
+                <button class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#filter-collapse" aria-expanded="false" aria-controls="filter-collapse">
+                    Filter by Type
+                </button>
+                <div class="collapse mt-3" id="filter-collapse">
+                    <div id="type-filters" class="row">
+                        <!-- Type checkboxes will be inserted here -->
+                    </div>
+                    <button id="apply-filters" class="btn btn-success mt-3">Apply Filters</button>
+                </div>
             </div>
-            <div class="modal-body" id="pokemon-details">
-                <!-- Pokémon details will be displayed here -->
+        </div>
+    
+        <div id="pokemon-container" class="row"></div>
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-center">
+                <li class="page-item">
+                    <button id="prev" class="page-link">Previous</button>
+                </li>
+                <li id="page-buttons" class="pagination"></li>
+                <li class="page-item">
+                    <button id="next" class="page-link">Next</button>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    
+    <!-- Modal -->
+    <div class="modal fade" id="pokemonModal" tabindex="-1" aria-labelledby="pokemonModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="pokemonModalLabel">Pokemon Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="pokemon-details">
+                    <!-- Pokémon details will be displayed here -->
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
-<script>
-const pokemonContainer = document.getElementById('pokemon-container');
-const pokemonModal = new bootstrap.Modal(document.getElementById('pokemonModal'));
-const pokemonDetails = document.getElementById('pokemon-details');
-const pageButtons = document.getElementById('page-buttons');
-const prevButton = document.getElementById('prev');
-const nextButton = document.getElementById('next');
-const headerText = document.getElementById('header-text');
-
-let currentPage = 1;
-const pageSize = 10;
-let totalPages = 0;
-let totalPokemon = 0;
-
-function fetchPokemons(page) {
-    fetch(`https://pokeapi.co/api/v2/pokemon?offset=${(page - 1) * pageSize}&limit=${pageSize}`)
-        .then(response => response.json())
-        .then(data => {
-            totalPokemon = data.count;
-            totalPages = Math.ceil(data.count / pageSize);
-            displayPokemons(data.results);
-            updatePagination();
-            updateHeader();
-        })
-        .catch(error => console.error('Error fetching Pokémon data:', error));
-}
-
-function displayPokemons(pokemons) {
-    pokemonContainer.innerHTML = '';
-    const sortedPokemons = pokemons.sort((a, b) => a.id - b.id); // Sort pokemons by id
-    sortedPokemons.forEach(pokemon => {
-        fetch(pokemon.url)
-            .then(response => response.json())
-            .then(data => {
-                const card = document.createElement('div');
-                card.className = 'col-md-3 card';
-                card.innerHTML = `
-                    <img src="${data.sprites.front_default}" class="card-img-top" alt="${data.name}">
-                    <div class="card-body" style="text-align: center">
-                        <h5 class="card-title">${data.name.toUpperCase()}</h5>
-                        <button class="btn btn-primary" onclick="showDetails('${data.name}')">Details</button>
-                    </div>
-                `;
-                pokemonContainer.appendChild(card);
-            });
-    });
-}
-// function displayPokemons(pokemons) {
-//     pokemonContainer.innerHTML = '';
-//     pokemons.forEach(pokemon => {
-//         fetch(pokemon.url)
-//             .then(response => response.json())
-//             .then(data => {
-//                 const card = document.createElement('div');
-//                 card.className = 'col-md-3 card';
-//                 card.innerHTML = `
-//                     <img src="${data.sprites.front_default}" class="card-img-top" alt="${data.name}">
-//                     <div class="card-body" style="text-align: center">
-//                         <h5 class="card-title">${data.name.toUpperCase()}</h5>
-//                         <button class="btn btn-primary" onclick="showDetails('${data.name}')">Details</button>
-//                     </div>
-//                 `;
-//                 pokemonContainer.appendChild(card);
-//             });
-//     });
-// }
-
-function showDetails(name) {
-    fetch(`https://pokeapi.co/api/v2/pokemon/${name}`)
-        .then(response => response.json())
-        .then(data => {
-            pokemonDetails.innerHTML = `
-                <h5>${data.name.toUpperCase()} - DATA ID: ${data.id}</h5>
-                <img src="${data.sprites.front_default}" alt="${data.name}">
-                <img src="${data.sprites.back_default}" alt="${data.name}">
-                <p>Height: ${data.height}</p>
-                <p>Weight: ${data.weight}</p>
-                <p>Abilities:
-                    <ul>
-                        ${data.abilities.map(abilityInfo => `<li>${abilityInfo.ability.name}</li>`).join('')}
-                    </ul>
-                </p>
-                <p> Stats:
-                    <ul>
-                        ${data.stats.map(statInfo => `<li>${statInfo.stat.name.toUpperCase()}: ${statInfo.base_stat}</li>`).join('')}
-                    </ul>
-                </p>
-
-                <p>Type: ${data.types.map(typeInfo => typeInfo.type.name).join(', ')}</p>
-            `;
-            pokemonModal.show();
-        });
-}
-
-function updatePagination() {
-    pageButtons.innerHTML = '';
-    const startPage = Math.max(1, currentPage - 2);
-    const endPage = Math.min(totalPages, currentPage + 2);
-
-    for (let i = startPage; i <= endPage; i++) {
-        const pageButton = document.createElement('li');
-        pageButton.className = `page-item ${i === currentPage ? 'active' : ''}`;
-        pageButton.innerHTML = `<button class="page-link" onclick="changePage(${i})">${i}</button>`;
-        pageButtons.appendChild(pageButton);
-    }
-
-    prevButton.style.display = currentPage === 1 ? 'none' : 'block';
-    nextButton.style.display = currentPage === totalPages ? 'none' : 'block';
-}
-
-function updateHeader() {
-    headerText.innerText = `Showing ${Math.min(currentPage * pageSize, totalPokemon)} out of ${totalPokemon} Pokémon`;
-}
-
-function changePage(page) {
-    currentPage = page;
-    fetchPokemons(currentPage);
-}
-
-prevButton.addEventListener('click', () => {
-    if (currentPage > 1) {
-        changePage(currentPage - 1);
-    }
-});
-
-nextButton.addEventListener('click', () => {
-    if (currentPage < totalPages) {
-        changePage(currentPage + 1);
-    }
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-    fetchPokemons(currentPage);
-});
-</script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
+    <script src="scripts.js"></script>
 
 </body>
 </html>
