@@ -46,7 +46,7 @@ function displayPokemons(pokemons) {
     pokemonContainer.innerHTML = '';
     pokemons.forEach(data => {
         const card = document.createElement('div');
-        card.className = 'col-md-4 col-lg-3 card'; // Adjusting column size here
+        card.className = 'col-sm-3 col-md-2 col-lg-2 card'; // Adjusting column size here
         card.innerHTML = `
             <img src="${data.sprites.front_default}" class="card-img-top" alt="${data.name}">
             <div class="card-body" style="text-align: center">
